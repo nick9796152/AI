@@ -12,7 +12,6 @@
 from langchain_community.vectorstores import Chroma
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser, BaseOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 
 from langchain.prompts import PromptTemplate
@@ -28,7 +27,9 @@ from langchain_experimental.utilities import PythonREPL
 
 from langgraph.graph import StateGraph, END
 
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+# Use Claude (Anthropic) instead of OpenAI
+from langchain_anthropic import ChatAnthropic
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from typing import Annotated, Sequence, TypedDict
 
@@ -55,11 +56,12 @@ from pprint import pprint
 PATH_SERVICES_VECTORDB = "data/salon_services_vectordb"
 PATH_TRANSACTIONS_DATABASE = "sqlite:///data/salon.db"
 
-# API Setup
-os.environ["OPENAI_API_KEY"] = yaml.safe_load(open('../credentials.yml'))['openai']
+# API Setup - Load Anthropic API Key
+credentials = yaml.safe_load(open('../credentials.yml'))
+os.environ["ANTHROPIC_API_KEY"] = credentials['anthropic']
 
-# LLM
-OPENAI_LLM = ChatOpenAI(model="gpt-4o-mini")
+# LLM - Using Claude
+CLAUDE_LLM = ChatAnthropic(model="claude-sonnet-4-20250514", max_tokens=4096)
 
 # =============================================================================
 # SUPERVISOR AGENT
@@ -72,77 +74,66 @@ subagent_names = [
     "Marketing_Email_Writer"
 ]
 
-def create_supervisor_agent(subagent_names: list, llm, temperature=0):
-    """Create the supervisor that routes between agents"""
-
-    system_prompt = """
-    You are a supervisor managing a conversation for a SALON BUSINESS between these workers: {subagent_names}.
-
-    Each worker has specific knowledge and skills:
-
-    1. Service_Expert: Knows all salon services, prices, durations, and can explain what each service includes. Can answer questions about haircuts, color, treatments, styling, wax, and extensions. Does NOT have access to customer data.
-
-    2. Business_Intelligence_Expert: Has access to the salon's transaction database. Can write SQL queries to analyze:
-       - Revenue by service, category, time period
-       - Customer visit patterns and spending
-       - Popular services and trends
-       - Customer summaries and segments
-       Can produce tables and charts.
-
-    3. Customer_Scoring_Expert: Can analyze customer data to:
-       - Identify customers at risk of churning (haven't visited recently)
-       - Find upsell opportunities (customers who might try new services)
-       - Calculate customer lifetime value
-       - Segment customers by behavior
-
-    4. Marketing_Email_Writer: Writes marketing emails for the salon including:
-       - Re-engagement campaigns for inactive customers
-       - Promotional emails for services
-       - Thank you and loyalty emails
-       - Seasonal promotions
-       Uses insights from other experts to personalize messages.
-
-    Given the user request, respond with the worker to act next.
-    Each worker will perform a task and respond with results.
-    When finished, respond with FINISH.
-    """
+def create_supervisor_agent(subagent_names: list, llm):
+    """Create the supervisor that routes between agents - Claude compatible"""
 
     route_options = ["FINISH"] + subagent_names
 
-    function_def = {
-        "name": "route",
-        "description": "Select the next role.",
-        "parameters": {
-            "title": "route_schema",
-            "type": "object",
-            "properties": {
-                "next": {
-                    "title": "Next",
-                    "anyOf": [{"enum": route_options}],
-                }
-            },
-            "required": ["next"],
-        },
-    }
+    system_prompt = f"""You are a supervisor managing a conversation for a SALON BUSINESS between these workers: {", ".join(subagent_names)}.
+
+Each worker has specific knowledge and skills:
+
+1. Service_Expert: Knows all salon services, prices, durations, and can explain what each service includes. Can answer questions about haircuts, color, treatments, styling, wax, and extensions. Does NOT have access to customer data.
+
+2. Business_Intelligence_Expert: Has access to the salon's transaction database. Can write SQL queries to analyze:
+   - Revenue by service, category, time period
+   - Customer visit patterns and spending
+   - Popular services and trends
+   - Customer summaries and segments
+   Can produce tables and charts.
+
+3. Customer_Scoring_Expert: Can analyze customer data to:
+   - Identify customers at risk of churning (haven't visited recently)
+   - Find upsell opportunities (customers who might try new services)
+   - Calculate customer lifetime value
+   - Segment customers by behavior
+
+4. Marketing_Email_Writer: Writes marketing emails for the salon including:
+   - Re-engagement campaigns for inactive customers
+   - Promotional emails for services
+   - Thank you and loyalty emails
+   - Seasonal promotions
+   Uses insights from other experts to personalize messages.
+
+Given the user request, respond with ONLY the name of the worker to act next.
+Each worker will perform a task and respond with results.
+When the task is complete, respond with FINISH.
+
+You must respond with exactly one of these options: {route_options}
+Respond with ONLY the option name, nothing else."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         MessagesPlaceholder(variable_name="messages"),
-        ("system", "Given the conversation above, who should act next? Or should we FINISH? Select one of: {route_options}"),
-    ]).partial(route_options=str(route_options), subagent_names=", ".join(subagent_names))
+        ("human", "Based on the conversation, who should act next? Respond with only the worker name or FINISH."),
+    ])
 
-    llm.temperature = temperature
+    def parse_response(response):
+        """Parse the LLM response to extract the routing decision"""
+        content = response.content.strip()
+        # Check for exact matches
+        for option in route_options:
+            if option.lower() in content.lower():
+                return {"next": option}
+        # Default to FINISH if unclear
+        return {"next": "FINISH"}
 
-    supervisor_chain = (
-        prompt
-        | llm.bind_functions(functions=[function_def], function_call="route")
-        | JsonOutputFunctionsParser()
-    )
+    supervisor_chain = prompt | llm | parse_response
 
     return supervisor_chain
 
 
-supervisor_agent = create_supervisor_agent(subagent_names=subagent_names, llm=OPENAI_LLM, temperature=0.7)
+supervisor_agent = create_supervisor_agent(subagent_names=subagent_names, llm=CLAUDE_LLM)
 
 # =============================================================================
 # SERVICE EXPERT AGENT (RAG)
@@ -151,7 +142,8 @@ supervisor_agent = create_supervisor_agent(subagent_names=subagent_names, llm=OP
 def create_service_expert_agent(db_path, llm, temperature=0):
     """Create the Service Expert RAG agent"""
 
-    embedding_function = OpenAIEmbeddings(model='text-embedding-ada-002')
+    # Use HuggingFace embeddings (free, no API key needed)
+    embedding_function = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
     llm.temperature = temperature
 
     vectorstore = Chroma(
@@ -189,7 +181,7 @@ def create_service_expert_agent(db_path, llm, temperature=0):
     return rag_chain
 
 
-service_expert_agent = create_service_expert_agent(PATH_SERVICES_VECTORDB, llm=OPENAI_LLM, temperature=0.7)
+service_expert_agent = create_service_expert_agent(PATH_SERVICES_VECTORDB, llm=CLAUDE_LLM, temperature=0.7)
 
 # =============================================================================
 # BUSINESS INTELLIGENCE EXPERT AGENT
@@ -386,7 +378,7 @@ def create_business_intelligence_agent(db_path, llm, temperature=0):
 
 business_intelligence_agent = create_business_intelligence_agent(
     db_path=PATH_TRANSACTIONS_DATABASE,
-    llm=OPENAI_LLM,
+    llm=CLAUDE_LLM,
     temperature=0
 )
 
@@ -498,7 +490,7 @@ def create_customer_scoring_agent(db_path, llm, temperature=0):
 
 customer_scoring_agent = create_customer_scoring_agent(
     db_path=PATH_TRANSACTIONS_DATABASE,
-    llm=OPENAI_LLM,
+    llm=CLAUDE_LLM,
     temperature=0
 )
 
@@ -554,7 +546,7 @@ def create_marketing_email_agent(llm, temperature=1.0):
     return marketing_agent
 
 
-marketing_email_agent = create_marketing_email_agent(llm=OPENAI_LLM, temperature=1.0)
+marketing_email_agent = create_marketing_email_agent(llm=CLAUDE_LLM, temperature=1.0)
 
 # =============================================================================
 # LANGGRAPH MAIN WORKFLOW

@@ -6,7 +6,7 @@
 # for the Service Expert agent to answer questions about services
 
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -14,14 +14,11 @@ import os
 import yaml
 
 # =============================================================================
-# API SETUP
+# EMBEDDINGS SETUP (Using HuggingFace - free, no API key needed)
 # =============================================================================
 
-# Load API key (adjust path as needed)
-try:
-    os.environ["OPENAI_API_KEY"] = yaml.safe_load(open('../credentials.yml'))['openai']
-except:
-    print("Note: Set OPENAI_API_KEY environment variable or update credentials path")
+# HuggingFace embeddings work locally, no API key required
+print("Using HuggingFace embeddings (all-MiniLM-L6-v2)")
 
 # =============================================================================
 # SALON SERVICE KNOWLEDGE BASE
@@ -231,9 +228,9 @@ def create_service_knowledge_base(
 
     print(f"Created {len(docs)} document chunks")
 
-    # Create embeddings
-    embedding_function = OpenAIEmbeddings(
-        model='text-embedding-ada-002'
+    # Create embeddings (HuggingFace - free, runs locally)
+    embedding_function = HuggingFaceEmbeddings(
+        model_name='all-MiniLM-L6-v2'
     )
 
     # Create and persist vector store
@@ -255,7 +252,7 @@ def create_service_knowledge_base(
 def test_retrieval(persist_directory: str = "data/salon_services_vectordb"):
     """Test the vector database retrieval"""
 
-    embedding_function = OpenAIEmbeddings(model='text-embedding-ada-002')
+    embedding_function = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
 
     vectorstore = Chroma(
         embedding_function=embedding_function,
