@@ -33,64 +33,63 @@ except:
 SALON_SERVICES = """
 # HAIRCUT SERVICES
 
-## Men's Haircut - $25
-Our men's haircuts include a consultation, precision cut, and style. We specialize in fades, tapers, classic cuts, and modern styles. Every cut includes a hot towel neck shave and styling product application.
+## Men's Haircut - $25-$30
+Our men's haircuts include a consultation, precision cut, and style. We specialize in fades, tapers, classic cuts, and modern styles.
 - Duration: 30 minutes
 - Recommended frequency: Every 3-4 weeks
 - Best for: All hair types and styles
 
-## Women's Haircut - $35
-A personalized women's haircut including consultation, shampoo, precision cut, and blowout styling. Our stylists are trained in all cutting techniques from blunt cuts to layered styles.
+## Women's Haircut - $35-$50
+A personalized women's haircut including consultation, shampoo, precision cut, and styling. Our stylists are trained in all cutting techniques from blunt cuts to layered styles.
 - Duration: 45-60 minutes
 - Recommended frequency: Every 6-8 weeks
 - Best for: All hair lengths and textures
 
-## Kids Haircut - $18
-Patient, kid-friendly haircuts for children 12 and under. We make the experience fun and comfortable for young clients.
+## Child Haircut - $18-$20
+Patient, kid-friendly haircuts for children. We make the experience fun and comfortable for young clients.
 - Duration: 20-30 minutes
-- Age: 12 and under
+- Best for: Children
 
-## Bang Trim - $10
-Quick trim for bangs between regular haircut appointments. Perfect for maintaining your fringe.
-- Duration: 10-15 minutes
-- Best for: Clients with bangs who need touch-ups
+## Shampoo, Haircut & Blow Dry - $60
+Complete service including shampoo, precision haircut, and professional blow dry styling.
+- Duration: 60-75 minutes
+- Best for: Full service appointment
 
 ---
 
 # COLOR SERVICES
 
-## Color Retouch - $70
-Root touch-up covering new growth. Perfect for maintaining your existing color between full color appointments. Includes processing time and a quick gloss.
+## Color Retouch - $70-$90
+Root touch-up covering new growth. Perfect for maintaining your existing color between full color appointments. Includes processing time.
 - Duration: 60-90 minutes
 - Recommended frequency: Every 4-6 weeks
 - Best for: Clients with existing color wanting to cover roots
-
-## Full Color - $95
-Complete all-over color from roots to ends. Includes consultation, application, processing, and style. We use professional-grade, ammonia-free color options available.
-- Duration: 90-120 minutes
-- Best for: First-time color, color changes, or gray coverage
-
-## Highlights & Lowlights - $150
-Dimensional color using foiling technique. Creates depth and movement in your hair. Price varies based on hair length and density.
-- Duration: 2-3 hours
-- Recommended frequency: Every 8-12 weeks
-- Best for: Adding dimension without full commitment to all-over color
-
-## Balayage - $200
-Hand-painted highlighting technique for a natural, sun-kissed look. Creates a softer grow-out than traditional highlights. Includes toner and style.
-- Duration: 2.5-3.5 hours
-- Recommended frequency: Every 12-16 weeks
-- Best for: Low-maintenance color, natural-looking dimension
 
 ## Toner - $40
 Gloss or toner service to refresh color, neutralize brassiness, or add shine. Can be done as a standalone service or added to any color service.
 - Duration: 30-45 minutes
 - Best for: Refreshing blonde, neutralizing unwanted tones
 
-## Color Correction - $250+
-Complex color services to fix previous color mishaps, remove unwanted color, or achieve dramatic transformations. Consultation required. Price varies significantly based on work needed.
-- Duration: 3-6+ hours (may require multiple sessions)
-- Consultation required
+---
+
+# FOILS / HIGHLIGHTS
+
+## Highlights - $150
+Classic foil highlights to add dimension and brightness to your hair. Price varies based on hair length and density.
+- Duration: 2-3 hours
+- Recommended frequency: Every 8-12 weeks
+- Best for: Adding brightness and dimension
+
+## Highlights & Low Lights - $150+
+Combination of highlights and lowlights using foiling technique. Creates beautiful depth and movement in your hair.
+- Duration: 2-3 hours
+- Recommended frequency: Every 8-12 weeks
+- Best for: Multi-dimensional color, adding depth and brightness
+
+## Highlights and Root Color - $180+
+Full highlights combined with root color coverage. Perfect for clients who want both dimension and gray coverage.
+- Duration: 2.5-3.5 hours
+- Best for: Clients needing both highlights and root coverage
 
 ---
 
@@ -102,46 +101,45 @@ Intensive moisture treatment for dry, damaged, or chemically-treated hair. Inclu
 - Recommended frequency: Monthly or as needed
 - Best for: Dry, damaged, or color-treated hair
 
-## Keratin Treatment - $250
-Smoothing treatment that reduces frizz and cuts styling time in half. Results last 3-5 months. We use formaldehyde-free formulas.
+---
+
+# SMOOTHING TREATMENTS
+
+## Brazilian Blow Out - $150-$250
+Professional smoothing treatment that eliminates frizz, smooths the cuticle, and creates shiny, manageable hair. Results improve with each wash and last up to 12 weeks.
 - Duration: 2-3 hours
-- Results last: 3-5 months
-- Best for: Frizzy, unmanageable hair
-
-## Scalp Treatment - $45
-Therapeutic scalp treatment addressing dryness, oiliness, or buildup. Includes exfoliation, treatment mask, and relaxing massage.
-- Duration: 30-45 minutes
-- Best for: Scalp issues, dandruff, buildup
-
-## Olaplex Treatment - $50
-Bond-building treatment that repairs hair from the inside out. Can be added to any color service or done as a standalone treatment.
-- Duration: 20-30 minutes (standalone)
-- Best for: Damaged, over-processed, or fragile hair
+- Results last: 10-12 weeks
+- Best for: Frizzy, curly, or unmanageable hair
+- Note: Reduces styling time significantly
 
 ---
 
 # STYLING SERVICES
 
-## Blowout - $45
-Professional wash and blow-dry styling. Choose from sleek and straight, bouncy curls, or beachy waves. Includes heat protectant and finishing products.
-- Duration: 45 minutes
-- Best for: Special occasions or weekly pampering
+## Shampoo & Blow Dry - $15-$70
+Professional wash and blow-dry styling. Choose from sleek and straight, bouncy volume, or soft waves. Includes heat protectant and finishing products.
+- Duration: 30-45 minutes
+- Best for: Special occasions, weekly pampering, or between haircuts
+
+## Blow Out - $100
+Premium professional blow-dry styling service for special occasions. Includes deep conditioning, scalp massage, and expert styling.
+- Duration: 45-60 minutes
+- Best for: Special events, photo shoots, date nights
 
 ## Updo - $75
 Elegant upstyle for special occasions. Includes consultation, styling, and finishing spray. Add braids, twists, or curls.
 - Duration: 60-90 minutes
 - Best for: Proms, weddings (guest), formal events
 
-## Bridal Styling - $150
-Luxury bridal hair styling including trial run (scheduled separately), day-of styling, and touch-up kit. On-location services available.
-- Duration: 90 minutes (trial), 60-90 minutes (day-of)
-- Includes: Trial run appointment
-- Travel available
+---
 
-## Special Event Styling - $85
-Glamorous styling for any special occasion. Includes consultation and style that lasts all night.
-- Duration: 60-75 minutes
-- Best for: Galas, parties, photo shoots
+# ROLLER SETS
+
+## Shampoo & Set - $25
+Classic roller set service including shampoo, setting on rollers, time under the dryer, and style out. Creates beautiful, long-lasting curls and volume.
+- Duration: 60-90 minutes
+- Best for: Clients who love classic curls, volume, and long-lasting styles
+- Great for: Special occasions or weekly styling
 
 ---
 
@@ -152,15 +150,25 @@ Precise eyebrow shaping using gentle wax. Includes tweezing for detailed shaping
 - Duration: 15 minutes
 - Recommended frequency: Every 3-4 weeks
 
-## Lip Wax - $10
+## Lip Wax - $10-$15
 Quick and gentle upper lip hair removal.
 - Duration: 10 minutes
+- Recommended frequency: Every 3-4 weeks
+
+## Chin Wax - $15
+Gentle chin hair removal with soothing aftercare.
+- Duration: 10-15 minutes
 - Recommended frequency: Every 3-4 weeks
 
 ## Full Face Wax - $45
 Complete facial waxing including eyebrows, lip, chin, and sideburns. Includes soothing treatment afterward.
 - Duration: 30 minutes
 - Recommended frequency: Every 4-6 weeks
+
+## Eyebrow Tint - $15-$20
+Semi-permanent eyebrow coloring to enhance and define your brows. Lasts 4-6 weeks.
+- Duration: 15-20 minutes
+- Best for: Lighter brows, adding definition
 
 ---
 

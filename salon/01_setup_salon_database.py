@@ -161,11 +161,20 @@ def create_salon_database(df, db_path='data/salon.db'):
 
     conn = sqlite3.connect(db_path)
 
+    # Drop existing views first (so we can recreate them)
+    conn.execute("DROP VIEW IF EXISTS customer_summary")
+    conn.execute("DROP VIEW IF EXISTS service_popularity")
+    conn.execute("DROP VIEW IF EXISTS monthly_revenue")
+
     # Main transactions table
     df.to_sql('transactions', conn, if_exists='replace', index=False)
 
+    # Get the max date from the data for calculating days_since_last_visit
+    max_date = df['date'].max()
+    print(f"Using reference date: {max_date}")
+
     # Create customer summary view
-    customer_summary_query = """
+    customer_summary_query = f"""
     CREATE VIEW IF NOT EXISTS customer_summary AS
     SELECT
         customer_id,
@@ -175,7 +184,7 @@ def create_salon_database(df, db_path='data/salon.db'):
         ROUND(AVG(gross_sales), 2) as avg_service_price,
         MIN(date) as first_visit,
         MAX(date) as last_visit,
-        CAST(julianday('2025-07-25') - julianday(MAX(date)) AS INTEGER) as days_since_last_visit,
+        CAST(julianday('{max_date}') - julianday(MAX(date)) AS INTEGER) as days_since_last_visit,
         COUNT(DISTINCT category) as unique_categories
     FROM transactions
     GROUP BY customer_id
@@ -222,27 +231,62 @@ def create_salon_database(df, db_path='data/salon.db'):
 
 
 # =============================================================================
+# LOAD AND CLEAN REAL DATA
+# =============================================================================
+
+def load_real_salon_data(csv_path):
+    """
+    Load and clean the real salon data from Square export
+    """
+    print(f"Loading data from: {csv_path}")
+    df = pd.read_csv(csv_path)
+
+    # Standardize column names (lowercase with underscores)
+    df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+
+    # Clean gross_sales - remove $ and convert to float
+    df['gross_sales'] = df['gross_sales'].replace('[\$,]', '', regex=True).astype(float)
+
+    # Handle missing/null categories
+    df['category'] = df['category'].fillna('Other')
+    df['item'] = df['item'].fillna('Custom Service')
+    df['itemization_type'] = df['itemization_type'].fillna('Service')
+
+    # Ensure date is in proper format
+    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+
+    print(f"Loaded {len(df)} transactions")
+    print(f"Date range: {df['date'].min()} to {df['date'].max()}")
+    print(f"Unique customers: {df['customer_id'].nunique()}")
+    print(f"Categories: {df['category'].unique().tolist()}")
+
+    return df
+
+
+# =============================================================================
 # MAIN EXECUTION
 # =============================================================================
 
 if __name__ == "__main__":
 
-    # Option 1: Use sample data
-    print("Generating sample salon data...")
-    df = generate_sample_salon_data(n_customers=200, n_transactions=1500)
+    # Path to real salon data
+    REAL_DATA_PATH = "../Sales Mostly Cleaned - sales (1).csv"
 
-    # Option 2: Load your actual data (uncomment and modify)
-    # df = pd.read_csv('your_salon_export.csv')
-    # df = pd.read_excel('your_salon_export.xlsx')
-
-    # Standardize column names (modify if your columns are different)
-    # df.columns = ['customer_id', 'transaction_id', 'date', 'time',
-    #               'itemization_type', 'category', 'item', 'gross_sales',
-    #               'payment_method', 'card_brand', 'device_name']
+    # Check if real data exists, otherwise use sample
+    if os.path.exists(REAL_DATA_PATH):
+        print("Loading REAL salon data...")
+        df = load_real_salon_data(REAL_DATA_PATH)
+    else:
+        print("Real data not found. Generating sample data...")
+        print(f"(Looking for: {REAL_DATA_PATH})")
+        df = generate_sample_salon_data(n_customers=200, n_transactions=1500)
 
     print("\nData Preview:")
     print(df.head(10))
     print(f"\nShape: {df.shape}")
+
+    print("\nCategories and counts:")
+    print(df['category'].value_counts())
 
     # Create the database
     create_salon_database(df)
@@ -250,7 +294,9 @@ if __name__ == "__main__":
     # Verify
     conn = sqlite3.connect('data/salon.db')
     print("\n--- Customer Summary Sample ---")
-    print(pd.read_sql("SELECT * FROM customer_summary LIMIT 5", conn))
+    print(pd.read_sql("SELECT * FROM customer_summary ORDER BY total_spent DESC LIMIT 5", conn))
     print("\n--- Service Popularity ---")
     print(pd.read_sql("SELECT * FROM service_popularity LIMIT 10", conn))
+    print("\n--- Monthly Revenue ---")
+    print(pd.read_sql("SELECT * FROM monthly_revenue LIMIT 10", conn))
     conn.close()
