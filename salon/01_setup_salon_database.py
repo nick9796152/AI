@@ -252,8 +252,16 @@ def load_real_salon_data(csv_path):
     df['item'] = df['item'].fillna('Custom Service')
     df['itemization_type'] = df['itemization_type'].fillna('Service')
 
-    # Ensure date is in proper format
-    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+    # Ensure date is in proper format - handle errors
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # Remove rows with invalid dates
+    invalid_dates = df['date'].isna().sum()
+    if invalid_dates > 0:
+        print(f"Warning: Removing {invalid_dates} rows with invalid dates")
+        df = df.dropna(subset=['date'])
+
+    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
 
     print(f"Loaded {len(df)} transactions")
     print(f"Date range: {df['date'].min()} to {df['date'].max()}")
