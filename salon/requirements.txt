@@ -1,0 +1,24 @@
+# Salon Multi-Agent System Requirements
+
+# Core LLM & AI
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-openai>=0.0.5
+langchain-experimental>=0.0.47
+langgraph>=0.0.20
+openai>=1.0.0
+
+# Vector Database
+chromadb>=0.4.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+sqlalchemy>=2.0.0
+
+# Visualization
+plotly>=5.15.0
+
+# Utilities
+pyyaml>=6.0
+pydantic>=2.0.0
