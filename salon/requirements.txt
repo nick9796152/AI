@@ -9,6 +9,7 @@ langgraph>=0.0.20
 anthropic>=0.18.0
 
 # Embeddings (HuggingFace - free, runs locally)
+langchain-huggingface>=0.0.3
 sentence-transformers>=2.2.0
 
 # Vector Database

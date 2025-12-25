@@ -29,7 +29,7 @@ from langgraph.graph import StateGraph, END
 
 # Use Claude (Anthropic) instead of OpenAI
 from langchain_anthropic import ChatAnthropic
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from typing import Annotated, Sequence, TypedDict
 
