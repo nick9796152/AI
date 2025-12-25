@@ -1,0 +1,12 @@
+# Generated data
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+*.yml
+!requirements.txt
