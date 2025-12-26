@@ -1,0 +1,39 @@
+name: ds4b_301p_dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pandas
+  - numpy
+  - sqlalchemy
+  - pyyaml
+  - joblib
+  - ipython
+  - pip:
+    - pytimetk
+    - openai
+    - langchain
+    - langchain-openai
+    - langchain-groq
+    - langchain-community
+    - langchain-experimental
+    - langchain-text-splitters
+    - langgraph
+    - langgraph-checkpoint-sqlite
+    - chromadb
+    - plotly
+    - streamlit
+    - fastapi
+    - uvicorn
+    - requests
+    - pycaret
+    - scikit-learn
+    - xgboost
+    - pyjanitor
+    - sweetviz
+    - yfinance
+    - tavily-python
+    - mlflow
+    - h2o
