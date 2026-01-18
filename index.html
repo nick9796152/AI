@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growth Special - Uyghur Eats</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a227;
+      --gold-light: #e8d48b;
+      --gold-dark: #8b6914;
+      --bg-dark: #0d0d0d;
+      --bg-card: #1a1a1a;
+      --text-cream: #f5f0e1;
+      --text-muted: #a89f8a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
+      color: var(--text-cream);
+      min-height: 100vh;
+      line-height: 1.7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 2500px;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 30%, rgba(201, 162, 39, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .book {
+      position: relative;
+      width: 340px;
+      height: 520px;
+      transform-style: preserve-3d;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .page-front, .page-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+      border: 2px solid var(--gold-dark);
+      border-radius: 4px 12px 12px 4px;
+      box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.6), inset 0 0 50px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .page-back { transform: rotateY(180deg); }
+
+    .page-front::before, .page-back::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 12px;
+      background: linear-gradient(90deg, #0a0a0a, #151515);
+      border-right: 1px solid rgba(201, 162, 39, 0.3);
+    }
+
+    .page.flipped { transform: rotateY(-180deg); }
+
+    .page-cover { z-index: 5; }
+    .page-1 { z-index: 4; }
+    .page-2 { z-index: 3; }
+    .page-3 { z-index: 2; }
+    .page-4 { z-index: 1; }
+
+    .page-cover.flipped { z-index: 1; }
+    .page-1.flipped { z-index: 2; }
+    .page-2.flipped { z-index: 3; }
+    .page-3.flipped { z-index: 4; }
+    .page-4.flipped { z-index: 5; }
+
+    .cover-front {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      background: linear-gradient(145deg, #1f1f1f 0%, #0c0c0c 100%);
+    }
+
+    .cover-corner { position: absolute; color: var(--gold); font-size: 18px; opacity: 0.9; }
+    .cover-corner.tl { top: 18px; left: 28px; }
+    .cover-corner.tr { top: 18px; right: 18px; }
+    .cover-corner.bl { bottom: 18px; left: 28px; }
+    .cover-corner.br { bottom: 18px; right: 18px; }
+
+    .cover-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-shadow: 0 2px 20px rgba(201, 162, 39, 0.4);
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .cover-ornament { color: var(--gold-dark); font-size: 1.3rem; letter-spacing: 0.5em; margin-bottom: 15px; }
+    .cover-subtitle { font-size: 1.05rem; font-style: italic; color: var(--text-muted); letter-spacing: 0.08em; }
+    .cover-footer { position: absolute; bottom: 65px; text-align: center; }
+    .prepared-by { font-size: 0.9rem; font-style: italic; color: var(--text-muted); letter-spacing: 0.06em; }
+    .click-hint { position: absolute; bottom: 30px; font-size: 0.8rem; color: var(--gold-dark); font-style: italic; animation: pulse 2s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .page-content { padding: 25px 20px; height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+    .page-title { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--gold); text-align: center; letter-spacing: 0.15em; margin-bottom: 4px; }
+    .divider { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; color: var(--gold-dark); font-size: 0.75rem; }
+    .divider-line { width: 35px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dark), transparent); }
+
+    .service-section { margin: 10px 0; }
+    .service-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .service-title { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--gold); letter-spacing: 0.04em; }
+    .service-timing { font-style: italic; color: var(--gold-dark); font-size: 0.75rem; }
+    .service-description { font-size: 0.85rem; color: var(--text-cream); opacity: 0.9; }
+    .addon-tag { color: var(--gold-light); font-weight: bold; font-style: italic; }
+
+    .bill-item { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 0.85rem; }
+    .bill-item .dots { flex: 1; border-bottom: 1px dotted var(--gold-dark); margin: 0 8px; opacity: 0.4; }
+    .bill-total { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0 6px; margin-top: 10px; border-top: 1px solid var(--gold); font-family: 'Cinzel', serif; font-size: 0.95rem; }
+    .bill-footnote { text-align: center; margin-top: 20px; font-size: 0.75rem; font-style: italic; color: var(--text-muted); opacity: 0.8; }
+
+    .preview-link { display: inline-block; margin: 10px 0 20px 0; font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); transition: all 0.3s ease; }
+    .preview-link:hover { color: var(--text-cream); border-bottom-color: var(--text-cream); }
+
+    .demo-interactive { display: flex; flex-direction: column; gap: 12px; margin: 5px 0 15px 0; }
+    .demo-tabs { display: flex; justify-content: center; gap: 10px; }
+    .demo-tab { padding: 6px 12px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; border: 1px solid var(--gold-dark); background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 20px; font-family: 'Cinzel', serif; }
+    .demo-tab.active { background: var(--gold); color: var(--bg-dark); border-color: var(--gold); }
+    .demo-input { width: 100%; height: 70px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--gold-dark); border-radius: 4px; padding: 10px; color: var(--text-cream); font-size: 0.85rem; resize: none; }
+    .demo-generate-btn { width: 100%; padding: 10px; background: linear-gradient(145deg, var(--gold-dark), var(--gold)); border: none; border-radius: 4px; color: var(--bg-dark); font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; }
+    .demo-output { min-height: 80px; max-height: 120px; overflow-y: auto; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--gold-dark); border-radius: 4px; padding: 10px; font-size: 0.8rem; color: var(--text-cream); font-style: italic; }
+
+    .feedback-question { font-size: 0.9rem; text-align: center; margin-bottom: 10px; }
+    .star-rating { display: flex; justify-content: center; gap: 5px; margin: 10px 0 5px 0; }
+    .star { font-size: 1.4rem; color: var(--text-muted); cursor: pointer; }
+    .star.active { color: var(--gold); }
+    .rating-label { width: 100%; font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; padding: 0 10px; margin-bottom: 15px; }
+    .feedback-textarea { width: 100%; height: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--gold-dark); border-radius: 4px; padding: 10px; color: var(--text-cream); margin-bottom: 15px; resize: none; }
+    .submit-btn { width: 100%; padding: 12px; background: linear-gradient(145deg, var(--gold-dark), var(--gold)); border: none; border-radius: 4px; color: var(--bg-dark); font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; }
+
+    .nav-hint { position: absolute; bottom: 15px; font-size: 0.7rem; color: var(--gold-dark); font-style: italic; pointer-events: none; }
+    .nav-hint.right { right: 20px; }
+    .quote-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 40px; text-align: center; }
+    .quote-text { font-size: 1.1rem; font-style: italic; margin-bottom: 15px; }
+    .quote-author { font-size: 0.85rem; color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="book" id="book">
+    <div class="page page-cover" id="cover">
+      <div class="page-front cover-front">
+        <span class="cover-corner tl">❧</span><span class="cover-corner tr">❧</span>
+        <h1 class="cover-title">Uyghur Eats</h1>
+        <div class="cover-ornament">◆ ◆ ◆</div>
+        <p class="cover-subtitle">Growth Special</p>
+        <div class="cover-footer"><p class="prepared-by">prepared by Nicholas Scotto</p></div>
+        <span class="click-hint">tap to open</span>
+      </div>
+      <div class="page-back">
+        <div class="quote-container">
+          <p class="quote-text">"Great things in business are never done by one person. They're done by a team of people."</p>
+          <span class="quote-author">— Steve Jobs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-1" id="page1">
+      <div class="page-front">
+        <div class="page-content">
+          <h2 class="page-title">A Recipe For Success</h2>
+          <div class="divider"><span class="divider-line"></span><span>◆</span><span class="divider-line"></span></div>
+          <div class="service-section">
+            <h3 class="service-title">1. Digital Foundation</h3>
+            <p class="service-description">I'll build you a strong, consistent online presence—Facebook, Instagram, Yelp, Google, Next Door, and your own website.</p>
+          </div>
+          <div class="service-section">
+            <h3 class="service-title">2. Ongoing Marketing</h3>
+            <p class="service-description">
+              Posting regularly, sharing your food, and responding to guests. 
+              <span class="addon-tag">(Optional Add-ons)</span>: We can help form agreements with local influencers and manage paid advertisements on Meta and Google to scale your reach.
+            </p>
+          </div>
+          <div class="service-section">
+            <h3 class="service-title">3. Operations Consulting</h3>
+            <p class="service-description">FREE help with operations and customer experience to ensure consistent excellence.</p>
+          </div>
+          <span class="nav-hint right">tap to continue →</span>
+        </div>
+      </div>
+      <div class="page-back">
+        <div class="quote-container">
+          <p class="quote-text">"Success is not final; failure is not fatal: It is the courage to continue that counts."</p>
+          <span class="quote-author">— Winston Churchill</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-2" id="page2">
+      <div class="page-front">
+        <div class="page-content">
+          <h2 class="page-title">~ The Bill ~</h2>
+          <div class="divider"><span class="divider-line"></span><span>◆</span><span class="divider-line"></span></div>
+          <div class="bill-item"><span>Digital Foundation</span><span class="dots"></span><span>$1,500</span></div>
+          <div class="bill-item"><span>Month 1 Marketing</span><span class="dots"></span><span>$500</span></div>
+          <div class="bill-item"><span>Month 2 Marketing</span><span class="dots"></span><span>$500</span></div>
+          <div class="bill-item"><span>Month 3 Marketing</span><span class="dots"></span><span>$500</span></div>
+          <div class="bill-item"><span>Operations Consulting</span><span class="dots"></span><span style="color:var(--gold-light)">FREE</span></div>
+          <div class="bill-total"><span>Growth Special</span><span>$3,000</span></div>
+          <p class="bill-footnote">*A full-time server costs 3x this. Your digital presence works 24/7.</p>
+          <span class="nav-hint right">tap to continue →</span>
+        </div>
+      </div>
+      <div class="page-back">
+        <div class="quote-container">
+          <p class="quote-text">"Alone we can do so little; together we can do so much."</p>
+          <span class="quote-author">— Helen Keller</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-3" id="page3">
+      <div class="page-front">
+        <div class="page-content">
+          <h2 class="page-title">Freebies</h2>
+          <div class="divider"><span class="divider-line"></span><span>◆</span><span class="divider-line"></span></div>
+          <p class="demo-intro" style="text-align:center">Let me show you what's possible.</p>
+          <div style="text-align:center"><a href="https://www.instagram.com/uyghureatsdc/" target="_blank" class="preview-link">✦ See what I've already built for you</a></div>
+          <div class="demo-interactive">
+            <div class="demo-tabs"><button class="demo-tab active" data-mode="caption">Caption Maker</button><button class="demo-tab" data-mode="review">Review Assistant</button></div>
+            <textarea class="demo-input" id="demoInput" placeholder="Describe the dish..."></textarea>
+            <button class="demo-generate-btn" id="demoGenerateBtn">✦ Generate</button>
+            <div class="demo-output" id="demoOutput"><p style="opacity:0.5;text-align:center">AI Output Area</p></div>
+          </div>
+          <div style="text-align:center;margin-top:10px"><button id="goToFeedback" class="demo-button" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:8px 15px;border-radius:4px;cursor:pointer">Send Us Your Thoughts →</button></div>
+        </div>
+      </div>
+      <div class="page-back"><div class="page-content" style="justify-content:center;align-items:center;font-style:italic;color:var(--text-muted)">Your opinion matters most.</div></div>
+    </div>
+
+    <div class="page page-4" id="page4">
+      <div class="page-front">
+        <div class="page-content">
+          <h2 class="page-title">Your Thoughts</h2>
+          <div class="divider"><span class="divider-line"></span><span>◆</span><span class="divider-line"></span></div>
+          <p class="feedback-question">How confident are you in these ideas?</p>
+          <div class="star-rating" id="confidenceRating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value=\"4">★</span><span class="star" data-value="5">★</span></div>
+          <div class="rating-label"><span>Not Confident</span><span>Possible</span><span>Extremely</span></div>
+          <p class="feedback-question">What did you like most?</p>
+          <textarea class="feedback-textarea" id="feedbackText" placeholder="I really liked..."></textarea>
+          <button class="submit-btn" id="sendFeedbackBtn">Send Feedback</button>
+        </div>
+      </div>
+      <div class="page-back"><div class="page-content" style="justify-content:center;align-items:center"><p class="thank-you">Thank You :)</p></div></div>
+    </div>
+  </div>
+
+  <script>
+    const pages = [document.getElementById('cover'), document.getElementById('page1'), document.getElementById('page2'), document.getElementById('page3'), document.getElementById('page4')];
+    function flipPage(i) { pages[i].classList.add('flipped'); }
+    function unflipPage(i) { pages[i].classList.remove('flipped'); }
+    document.getElementById('goToFeedback').addEventListener('click', () => flipPage(3));
+    pages.forEach((p, i) => {
+      p.addEventListener('click', (e) => {
+        if (e.target.closest('.demo-interactive') || e.target.closest('.star-rating') || e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA') return;
+        p.classList.contains('flipped') ? unflipPage(i) : flipPage(i);
+      });
+    });
+
+    const demoTabs = document.querySelectorAll('.demo-tab'), demoInput = document.getElementById('demoInput'), demoBtn = document.getElementById('demoGenerateBtn'), demoOut = document.getElementById('demoOutput');
+    let mode = 'caption';
+    demoTabs.forEach(t => t.addEventListener('click', () => {
+      demoTabs.forEach(x => x.classList.remove('active')); t.classList.add('active');
+      mode = t.dataset.mode; demoInput.placeholder = mode === 'caption' ? "Describe the dish..." : "Paste review here...";
+    }));
+    demoBtn.addEventListener('click', async () => {
+      const val = demoInput.value.trim(); if (!val) return;
+      demoBtn.innerText = "Cooking..."; demoBtn.disabled = true;
+      await new Promise(r => setTimeout(r, 1000));
+      demoOut.innerHTML = mode === 'caption' ? `<p>✨ Hand-pulled perfection! Our ${val} is spiced with tradition. Come taste the love at Uyghur Eats! #DCFoodie</p>` : "<p>Thank you so much for the feedback! We are thrilled you visited and hope to see you again soon.</p>";
+      demoBtn.innerText = "✦ Generate"; demoBtn.disabled = false;
+    });
+
+    const stars = document.querySelectorAll('.star'); let rating = 0;
+    stars.forEach(s => s.addEventListener('click', () => {
+      rating = s.dataset.value;
+      stars.forEach(x => x.classList.toggle('active', x.dataset.value <= rating));
+    }));
+    document.getElementById('sendFeedbackBtn').addEventListener('click', () => {
+      const text = document.getElementById('feedbackText').value;
+      window.location.href = `mailto:nicholas.s.scotto@gmail.com?subject=Proposal Feedback&body=Confidence: ${rating}/5%0A%0AFedback: ${encodeURIComponent(text)}`;
+    });
+  </script>
+</body>
+</html>
